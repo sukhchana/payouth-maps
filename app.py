@@ -13,6 +13,8 @@ import plotly.io as pio
 import pandas as pd
 import numpy as np
 
+
+
 from maps_app.utils.get_secrets import get_secret
 from maps_app.utils.get_dynamodb import get_polling_stations, write_to_dynamodb
 
@@ -65,11 +67,12 @@ def county_maps_page():
     file_path = "./currentvotestats.xls"
     sheet_name = "All by Age"
     df_pa = pd.read_excel(file_path, sheet_name=sheet_name)
-
-    # Fetch the geojson
-    with open("./county-data.json") as f:
+    with open("./mapS_app/county-data.json", "r") as f:
         geojson = json.load(f)
-
+    with open("./mapS_app/df_pa.json", "r") as f:
+        df_pa = pd.DataFrame(json.load(f))
+    
+    
     county_data = [
         {
             "fips": feature["properties"]["STATE"] + feature["properties"]["COUNTY"],
