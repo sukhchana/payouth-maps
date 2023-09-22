@@ -1,4 +1,5 @@
 import logging
+import random
 import hashlib
 import sys
 from flask import Flask, render_template
@@ -13,19 +14,15 @@ handler = logging.StreamHandler(sys.stdout)
 app.logger.addHandler(handler)
 
 secret_value = get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1")
-# app.config['GOOGLEMAPS_KEY'] = secret_value
+app.config['GOOGLEMAPS_KEY'] = secret_value
 secret_hash = hashlib.md5(secret_value.encode()).hexdigest()
 
 app.logger.info(f"secret from secrets manager hash:{secret_hash}")
 
 # Initialize the extension
 google_maps = GoogleMaps(app)
-google_maps.key = secret_value
-
-import random
 
 random.seed = 10
-
 
 def generate_locations(num, lat=40.4406, lng=-79.9959, current_count=0, locations=[]):
     if current_count == num:
@@ -33,7 +30,7 @@ def generate_locations(num, lat=40.4406, lng=-79.9959, current_count=0, location
     #PA_bounds = {"north": 42.3, "south": 39.7, "west": -80.5, "east": -74.7}
 
     # Adjust the latitude and longitude slightly for each subsequent location
-    new_lat = (random.randint(39, 40) + random.random())
+    new_lat = (random.randint(40, 41) + random.random())
     new_lng = (random.randrange(77, 80) + random.random() ).__neg__()
 
     # Mock address and name for the location
@@ -102,8 +99,6 @@ def generate_locations(num, lat=40.4406, lng=-79.9959, current_count=0, location
 
     return generate_locations(num, new_lat, new_lng, current_count + 1, locations)
 
-
-# Generate 50 locations
 voting_locations = generate_locations(15)
 
 
