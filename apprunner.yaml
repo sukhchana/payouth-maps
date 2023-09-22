@@ -4,6 +4,7 @@ build:
   commands:
     build:        
       - pip install pipenv
+      - pipenv install gunicorn --python 3.8.16
       - pipenv install --python 3.8.16
 run:
   runtime-version: 3.8.16

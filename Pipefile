@@ -10,7 +10,7 @@ python_version = "3.8.16"
 boto3 = "*"
 botocore = "*"
 click = "*"
-colorama = "*
+colorama = "*"
 Flask = "*"
 flask-googlemaps = "*"
 itsdangerous = "*"
@@ -22,7 +22,6 @@ s3transfer = "*"
 six = "*"
 urllib3 = "*"
 Werkzeug = "*"
-
 
 [dev-packages]
 pytest = "*"
