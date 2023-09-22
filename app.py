@@ -72,7 +72,6 @@ def county_maps_page():
     with open("./mapS_app/df_pa.json", "r") as f:
         df_pa = pd.DataFrame(json.load(f))
     
-    
     county_data = [
         {
             "fips": feature["properties"]["STATE"] + feature["properties"]["COUNTY"],
