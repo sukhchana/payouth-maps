@@ -25,10 +25,6 @@ def get_polling_stations(table_name):
     ]
     return items
 
-
-import boto3
-
-
 def write_to_dynamodb(table_name, item):
     """
     Writes an item to the specified DynamoDB table.
