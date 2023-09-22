@@ -10,6 +10,9 @@ logger.setLevel(logging.INFO)
 
 app = Flask(__name__)
 
+secret_value = get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1")
+app.config['GOOGLEMAPS_KEY'] = secret_value
+secret_hash = hashlib.md5(secret_value.encode()).hexdigest()
 
 # Initialize the extension
 google_maps = GoogleMaps(app)
@@ -18,10 +21,7 @@ google_maps = GoogleMaps(app)
 def index():
     # Creating a map in the view
     # You can set key as config
-    secret_value = get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1")
-    app.config['GOOGLEMAPS_KEY'] = secret_value
-    secret_hash = hashlib.md5(secret_value.encode()).hexdigest()
-
+    
     logger.info(f"secret from secrets manager hash:{secret_hash}")
     print(f"secret from secrets manager hash:{secret_hash}")
 
