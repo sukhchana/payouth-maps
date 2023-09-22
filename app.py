@@ -8,6 +8,7 @@ from flask_googlemaps import Map
 from flask_cors import cross_origin
 
 from maps_app.utils.get_secrets import get_secret
+from maps_app.utils.get_dynamodb import get_polling_stations
 
 
 app = Flask(__name__)
@@ -90,14 +91,21 @@ def generate_locations(num, lat=40.4406, lng=-79.9959, current_count=0, location
     ]
     street_types = ["St", "Ave", "Dr", "Rd", "Blvd"]
     city = random.choice(city_names)
-    address = f"{address_num} {random.choice(street_names)} {random.choice(street_types)}, {city}, PA {random.randint(15001, 19640)}"
+    street_name = random.choice(street_names)
+    zip_code = random.randint(15001, 19640)
+    address = f"{address_num} {street_name} {random.choice(street_types)}, {city}, PA {zip_code}"
     name = f"{city} Voting Center"
 
     location = {
         "lat": new_lat,
         "lng": new_lng,
-        "infobox": f"<b>{name}</b><br>{address}",
+        "name": name,
+        "city": city,
+        "state": "PA",
+        "address": address,
+        "zip": zip_code,
     }
+
     locations.append(location)
 
     return generate_locations(num, new_lat, new_lng, current_count + 1, locations)
@@ -115,7 +123,7 @@ def index():
         lng=-76.8867,  # Central longitude for Pennsylvania
         fit_markers_to_bounds=True,
         style="height:600px;width:100%;margin:0;",
-        markers=voting_locations,
+        markers=get_polling_stations("pollingstation"),
     )
 
     return render_template(
@@ -124,7 +132,6 @@ def index():
         google_maps=google_maps,
         voting_locations=voting_locations,
     )
-    
 
 
 @app.route("/json")
