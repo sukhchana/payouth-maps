@@ -66,7 +66,7 @@ def county_maps_page():
     # Load the specific sheet from the Excel file
     file_path = "./currentvotestats.xls"
     sheet_name = "All by Age"
-    df_pa = pd.read_excel(file_path, sheet_name=sheet_name)
+    # df_pa = pd.read_excel(file_path, sheet_name=sheet_name)
     with open("./mapS_app/county-data.json", "r") as f:
         geojson = json.load(f)
     with open("./mapS_app/df_pa.json", "r") as f:
