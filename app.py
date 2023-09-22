@@ -15,7 +15,7 @@ secret_value = get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1")
 app.config['GOOGLEMAPS_KEY'] = secret_value
 secret_hash = hashlib.md5(secret_value.encode()).hexdigest()
 
-logging.info(f"secret from secrets manager hash:{secret_hash}")
+logger.info(f"secret from secrets manager hash:{secret_hash}")
 
 # Initialize the extension
 google_maps = GoogleMaps(app)

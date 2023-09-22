@@ -8,9 +8,9 @@ build:
       - pipenv install --python 3.8.16
 run:
   runtime-version: 3.8.16
-  command: pipenv run gunicorn app:app -b 0.0.0.0:443
+  command: pipenv run gunicorn app:app -b 0.0.0.0:8080 --log-level=info
   network: 
-    port: 443
+    port: 8080
     env: MY_APP_PORT  
   env:
     - name: MY_VAR_EXAMPLE
