@@ -13,12 +13,15 @@ handler = logging.StreamHandler(sys.stdout)
 app.logger.addHandler(handler)
 
 secret_value = get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1")
-app.config['GOOGLEMAPS_KEY'] = secret_value
+# app.config['GOOGLEMAPS_KEY'] = secret_value
 secret_hash = hashlib.md5(secret_value.encode()).hexdigest()
 
 # Initialize the extension
 google_maps = GoogleMaps(app)
-
+google_maps.key = secret_value
+print("google_maps.key")
+print(secret_value)
+print("google_maps.key")
 @app.route('/')
 def index():
     # Creating a map in the view
