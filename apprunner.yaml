@@ -8,7 +8,7 @@ build:
       - pipenv install --python 3.8.16
 run:
   runtime-version: 3.8.16
-  command: pipenv run gunicorn maps_app:app -b 0.0.0.0:8080
+  command: pipenv run gunicorn app:app -b 0.0.0.0:8080
   network: 
     port: 8080
     env: MY_APP_PORT  
