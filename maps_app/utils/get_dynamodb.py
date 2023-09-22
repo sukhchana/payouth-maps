@@ -2,7 +2,7 @@ from decimal import Decimal
 import boto3
 from botocore.exceptions import ClientError
 
-from maps_app.utils.sampledata import items as insert_items
+from maps_app.utils.sampledata import voting_locations
 
 
 def get_polling_stations(table_name):
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # for item in items:
     #     print(item)
 
-    items = insert_items
+    items = voting_locations
     for item_data in items:
         item_data["lat"] = Decimal(str(item_data["lat"]))
         item_data["lng"] = Decimal(str(item_data["lng"]))

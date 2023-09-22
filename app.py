@@ -1,11 +1,16 @@
 import logging
-import random
+import json
 import hashlib
 import sys
 from flask import Flask, render_template, jsonify
 from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map
 from flask_cors import cross_origin
+from flask import Flask, render_template
+import plotly.express as px
+import plotly.io as pio
+import pandas as pd
+
 
 from maps_app.utils.get_secrets import get_secret
 from maps_app.utils.get_dynamodb import get_polling_stations
@@ -24,95 +29,6 @@ app.logger.info(f"secret from secrets manager hash:{secret_hash}")
 
 # Initialize the extension
 google_maps = GoogleMaps(app)
-
-random.seed = 10
-
-
-def generate_locations(num, lat=40.4406, lng=-79.9959, current_count=0, locations=[]):
-    if current_count == num:
-        return locations
-    # PA_bounds = {"north": 42.3, "south": 39.7, "west": -80.5, "east": -74.7}
-
-    # Adjust the latitude and longitude slightly for each subsequent location
-    new_lat = random.randint(40, 41) + random.random()
-    new_lng = (random.randrange(77, 80) + random.random()).__neg__()
-
-    # Mock address and name for the location
-    address_num = random.randint(100, 999)
-    city_names = [
-        "Pittsburgh",
-        "Philadelphia",
-        "Harrisburg",
-        "Lancaster",
-        "Allentown",
-        "Erie",
-        "Scranton",
-        "Bethlehem",
-        "State College",
-        "York",
-        "Reading",
-        "Altoona",
-        "Wilkes-Barre",
-        "Easton",
-        "Lebanon",
-        "Hazleton",
-        "Chambersburg",
-        "Pottsville",
-        "Carlisle",
-        "Hanover",
-        "Williamsport",
-        "Sharon",
-        "Hermitage",
-        "Greensburg",
-        "New Castle",
-        "Johnstown",
-        "McKeesport",
-        "Norristown",
-        "Chester",
-        "Bethel Park",
-        "Monroeville",
-        "Plum",
-        "Doylestown",
-        "Meadville",
-        "Indiana",
-        "St. Marys",
-    ]
-    street_names = [
-        "Liberty",
-        "Broad",
-        "Penn",
-        "Main",
-        "Hamilton",
-        "College",
-        "Lakefront",
-        "King",
-        "Capitol",
-        "Market",
-    ]
-    street_types = ["St", "Ave", "Dr", "Rd", "Blvd"]
-    city = random.choice(city_names)
-    street_name = random.choice(street_names)
-    zip_code = random.randint(15001, 19640)
-    address = f"{address_num} {street_name} {random.choice(street_types)}, {city}, PA {zip_code}"
-    name = f"{city} Voting Center"
-
-    location = {
-        "latlng": f"{new_lat},{new_lng,}",
-        "lat": new_lat,
-        "lng": new_lng,
-        "name": name,
-        "city": city,
-        "state": "PA",
-        "address": address,
-        "zip": zip_code,
-    }
-
-    locations.append(location)
-
-    return generate_locations(num, new_lat, new_lng, current_count + 1, locations)
-
-
-voting_locations = generate_locations(15)
 
 
 @app.route("/")
@@ -139,6 +55,65 @@ def index():
         google_maps=google_maps,
         voting_locations=voting_locations,
     )
+
+
+@app.route("/county_map")
+@cross_origin(origins=["*"])
+def county_maps_page():
+    # Load the specific sheet from the Excel file
+    file_path = "./currentvotestats.xls"
+    sheet_name = "All by Age"
+    df_pa = pd.read_excel(file_path, sheet_name=sheet_name)
+
+    print(df_pa)
+    # Fetch the geojson
+    with open("./county-data.json") as f:
+        geojson = json.load(f)
+
+    # Extract FIPS codes and county names from the geojson
+    county_data = [
+        {
+            "fips": feature["properties"]["STATE"] + feature["properties"]["COUNTY"],
+            "County": feature["properties"][
+                "NAME"
+            ].upper(),  # Convert to uppercase to match your dataframe
+        }
+        for feature in geojson["features"]
+        if feature["properties"]["STATE"] == "42"
+    ]
+
+    df_fips = pd.DataFrame(county_data)
+
+    merged_df = pd.merge(df_pa, df_fips, on="County", how="left")
+
+    import numpy as np
+
+    merged_df["log_pop"] = np.log(
+        merged_df["18 to 24"] + 1
+    )  # Adding 1 to handle counties with 0 population in the age group
+
+    fig = px.choropleth_mapbox(
+        merged_df,
+        geojson=geojson,
+        locations="fips",
+        color="log_pop",  # Use the logarithmic column for coloring
+        hover_name="County",
+        hover_data={"18 to 24": True, "log_pop": False, "fips": False},
+        mapbox_style="carto-positron",
+        color_continuous_scale="Viridis",
+        title="Population of Pennsylvania Counties (Age Group: 18 to 24) - Log Scale",
+        center={"lat": 40.994593, "lon": -77.604698},  # Center of PA
+        zoom=6,
+    )
+    # Adjust the layout
+    fig.update_layout(height=600, autosize=True)  # You can modify the height value as needed
+
+    # Display the map
+    print(fig._config)
+
+    plot_html = pio.to_html(fig, full_html=False)
+
+    return render_template("county_map.html", plot_html=plot_html)
 
 
 @app.route("/json")
