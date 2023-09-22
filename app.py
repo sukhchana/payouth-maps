@@ -16,7 +16,7 @@ handler = logging.StreamHandler(sys.stdout)
 app.logger.addHandler(handler)
 
 secret_value = get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1")
-app.config['GOOGLEMAPS_KEY'] = secret_value
+app.config["GOOGLEMAPS_KEY"] = secret_value
 secret_hash = hashlib.md5(secret_value.encode()).hexdigest()
 
 app.logger.info(f"secret from secrets manager hash:{secret_hash}")
@@ -26,19 +26,20 @@ google_maps = GoogleMaps(app)
 
 random.seed = 10
 
+
 def generate_locations(num, lat=40.4406, lng=-79.9959, current_count=0, locations=[]):
     if current_count == num:
         return locations
-    #PA_bounds = {"north": 42.3, "south": 39.7, "west": -80.5, "east": -74.7}
+    # PA_bounds = {"north": 42.3, "south": 39.7, "west": -80.5, "east": -74.7}
 
     # Adjust the latitude and longitude slightly for each subsequent location
-    new_lat = (random.randint(40, 41) + random.random())
-    new_lng = (random.randrange(77, 80) + random.random() ).__neg__()
+    new_lat = random.randint(40, 41) + random.random()
+    new_lng = (random.randrange(77, 80) + random.random()).__neg__()
 
     # Mock address and name for the location
     address_num = random.randint(100, 999)
     city_names = [
-        "Pittsburgh", 
+        "Pittsburgh",
         "Philadelphia",
         "Harrisburg",
         "Lancaster",
@@ -101,11 +102,20 @@ def generate_locations(num, lat=40.4406, lng=-79.9959, current_count=0, location
 
     return generate_locations(num, new_lat, new_lng, current_count + 1, locations)
 
+
 voting_locations = generate_locations(15)
 
 
 @app.route("/")
-@cross_origin(origins=["https://igwx8jmmyz.us-east-1.awsapprunner.com/elections", "http://localhost:4200/"])
+@cross_origin(
+    origins=[
+        "localhost:3000",
+        "https://ushnpebit6.us-east-1.awsapprunner.com/",
+        "https://igwx8jmmyz.us-east-1.awsapprunner.com/elections",
+        "http://localhost:4200",
+        "https://rtp89c6jki.us-east-1.awsapprunner.com/",
+    ]
+)
 def index():
     mymap = Map(
         identifier="view-side",
@@ -122,6 +132,7 @@ def index():
         google_maps=google_maps,
         voting_locations=voting_locations,
     )
+
 
 @app.route("/json")
 def html_data():
@@ -140,8 +151,7 @@ def html_data():
         google_maps=google_maps,
         voting_locations=voting_locations,
     )
-    return jsonify(data=rendered_html), 200, {'Content-Type': 'application/json'}
-
+    return jsonify(data=rendered_html), 200, {"Content-Type": "application/json"}
 
 
 if __name__ == "__main__":
