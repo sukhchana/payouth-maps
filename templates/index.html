@@ -1,14 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Flask Google Maps Boilerplate</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #007BFF; /* Bootstrap primary color */
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+    </style>
     {{ mymap.js }}
+
 </head>
+
 <body>
-    <h1>Flask Google Maps Boilerplate!</h1>
-    {{ mymap.html }}
-    <p>This is a simple Flask application with Google Maps integration.</p>
+
+    <div class="container">
+        <div class="row justify-content-center py-3">
+            <div class="col-12 text-center">
+                <h1 class="text-center">Voting Locations Map</h1>
+                {{ mymap.html }}
+            </div>
+            <br>
+        </div>
+        <div class="row justify-content-center py-3">
+            <div class="col-12 text-center">
+                <h4 class="text-center">Voting Locations List</h4>
+                <br>
+                {% for location in voting_locations %}
+                    <div>
+                        {{ location.infobox|safe }}
+                        
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
