@@ -1,8 +1,9 @@
+from decimal import Decimal
 import logging
 import json
 import hashlib
 import sys
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map
 from flask_cors import cross_origin
@@ -10,10 +11,10 @@ from flask import Flask, render_template
 import plotly.express as px
 import plotly.io as pio
 import pandas as pd
-
+import numpy as np
 
 from maps_app.utils.get_secrets import get_secret
-from maps_app.utils.get_dynamodb import get_polling_stations
+from maps_app.utils.get_dynamodb import get_polling_stations, write_to_dynamodb
 
 
 app = Flask(__name__)
@@ -82,8 +83,6 @@ def county_maps_page():
 
     merged_df = pd.merge(df_pa, df_fips, on="County", how="left")
 
-    import numpy as np
-
     merged_df["population"] = np.log(merged_df["18 to 24"] + 1)
 
     fig = px.choropleth_mapbox(
@@ -140,7 +139,32 @@ def html_data():
         google_maps=google_maps,
         voting_locations=voting_locations,
     )
+
     return jsonify(data=rendered_html), 200, {"Content-Type": "application/json"}
+
+
+@app.route("/update_dynamodb/<param_value>", methods=["POST"])
+def update_dynamodb(table_name="pollinglocation"):
+    data = request.json
+    key = data["key"]
+    del data["key"]
+    if key != "admin":
+        return jsonify({"status_code": 400})
+    response_list = []
+
+    if table_name == "pollinglocation":
+        for item in data["data"]:
+            # Ensure lat and lng are Decimals
+            item["lat"] = Decimal(str(item["lat"]))
+            item["lng"] = Decimal(str(item["lng"]))
+            response = write_to_dynamodb(table_name, item)
+            response_list.append(response)
+        return jsonify(response_list)
+    else:
+        for item in data["data"]:
+            response = write_to_dynamodb(table_name, item)
+            response_list.append(response)
+        return jsonify(response_list)
 
 
 if __name__ == "__main__":
