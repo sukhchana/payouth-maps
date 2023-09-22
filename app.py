@@ -5,6 +5,8 @@ import sys
 from flask import Flask, render_template, jsonify
 from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map
+from flask_cors import cross_origin
+
 from maps_app.utils.get_secrets import get_secret
 
 
@@ -103,6 +105,7 @@ voting_locations = generate_locations(15)
 
 
 @app.route("/")
+@cross_origin(origins=["https://igwx8jmmyz.us-east-1.awsapprunner.com/elections", "http://localhost:4200/"])
 def index():
     mymap = Map(
         identifier="view-side",
