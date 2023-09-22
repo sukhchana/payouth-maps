@@ -1,0 +1,28 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[requires]
+python_version = "3.8.16"
+
+[packages]
+boto3 = "*"
+botocore = "*"
+click = "*"
+colorama = "*"
+Flask = "*"
+flask-googlemaps = "==0.4.0"
+flask_cors = "*"
+itsdangerous = "*"
+Jinja2 = "*"
+jmespath = "*"
+MarkupSafe = "*"
+numpy = "<=1.24.4"
+pandas = "<=2.0.3"
+python-dateutil = "*"
+plotly = "*"
+s3transfer = "*"
+six = "*"
+urllib3 = "*"
+Werkzeug = "*"
