@@ -3,7 +3,16 @@ from botocore.exceptions import ClientError
 
 
 def get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1"):
-    # Create a Secrets Manager client
+    """
+    Retreives the specified secret from a given region.
+
+    Parameters:
+    - secret_name: Name of the secret.
+    - region_name: AWS region.
+
+    Returns:
+    - secret value
+    """
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
@@ -12,7 +21,6 @@ def get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1"):
     except ClientError as e:
 
         raise e
-
     
     secret = get_secret_value_response["SecretString"]
 

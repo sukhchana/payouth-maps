@@ -118,6 +118,11 @@ voting_locations = generate_locations(15)
 @app.route("/")
 @cross_origin(origins=["*"])
 def index():
+    """
+    Renders a google map with polling locations retreieved from a dynamodb table
+    Returns:
+    - Rendered HTML.
+    """
     mymap = Map(
         identifier="view-side",
         lat=40.2732,  # Central latitude for Pennsylvania
@@ -137,6 +142,11 @@ def index():
 
 @app.route("/json")
 def html_data():
+    """
+    Raw HTML from JSON.
+    Returns:
+    - Rendered HTML in json format
+    """
     mymap = Map(
         identifier="view-side",
         lat=40.2732,  # Central latitude for Pennsylvania

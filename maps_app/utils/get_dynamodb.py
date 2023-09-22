@@ -6,7 +6,15 @@ from maps_app.utils.sampledata import items as insert_items
 
 
 def get_polling_stations(table_name):
-    # Initialize a session using Amazon DynamoDB
+    """
+    Reads all items for the specified DynamoDB table.
+
+    Parameters:
+    - table_name: Name of the DynamoDB table.
+
+    Returns:
+    - The response from the DynamoDB service.
+    """
     session = boto3.Session()
     dynamodb = session.resource("dynamodb")
 
@@ -27,6 +35,7 @@ def get_polling_stations(table_name):
         return items
     except:
         return []
+
 
 def write_to_dynamodb(table_name, item):
     """
