@@ -137,13 +137,12 @@ def index():
         }
     });
 }
-let userLatitude, userLongitude;
+let userLocation;
 
 user_loc()
     .then(location => {
-        userLatitude = location.lat;
-        userLongitude = location.lng;
-        console.log(userLatitude, userLongitude);
+        userLocation = location; // This is now a google.maps.LatLng object
+        console.log(userLocation);
     })
     .catch(error => {
         console.error(error.message);
