@@ -107,15 +107,7 @@ voting_locations = generate_locations(15)
 
 
 @app.route("/")
-@cross_origin(
-    origins=[
-        "localhost:3000",
-        "https://ushnpebit6.us-east-1.awsapprunner.com/",
-        "https://igwx8jmmyz.us-east-1.awsapprunner.com/elections",
-        "http://localhost:4200",
-        "https://rtp89c6jki.us-east-1.awsapprunner.com/",
-    ]
-)
+@cross_origin(origins=["*"])
 def index():
     mymap = Map(
         identifier="view-side",
@@ -126,12 +118,46 @@ def index():
         markers=voting_locations,
     )
 
-    return render_template(
+    geometry = f'<script src="https://maps.googleapis.com/maps/api/js?key={secret_value}&libraries=geometry"></script>'
+
+
+    location_script = """function user_loc() {
+    return new Promise(function(resolve, reject) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                console.log(lat, lng);
+                resolve(new google.maps.LatLng(lat, lng));
+            }, function(error) {
+                reject(error);
+            });
+        } else {
+            reject(new Error("Geolocation is not supported by this browser."));
+        }
+    });
+}
+"""
+
+    tmp_html = render_template(
         "index.html",
         mymap=mymap,
         google_maps=google_maps,
         voting_locations=voting_locations,
     )
+    fixed_html = tmp_html.replace(
+        f'<script src="//maps.googleapis.com/maps/api/js?key={secret_value}&language=en&region=US" type="text/javascript"></script>',
+       geometry,
+    )
+    fixed_html = fixed_html.replace(
+        "var prev_infowindow_map = null;",
+        "var prev_infowindow_map = null;\n" + location_script,
+    )
+    fixed_html = fixed_html.replace(
+        "center: new google.maps.LatLng(40.2732, -76.8867),", "center: user_loc().then(function(latLng) {console.log(latLng);}).catch(function(error) {alert(error.message);});,"
+    )
+
+    return fixed_html
 
 
 @app.route("/json")
