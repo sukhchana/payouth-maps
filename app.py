@@ -65,18 +65,14 @@ def county_maps_page():
     sheet_name = "All by Age"
     df_pa = pd.read_excel(file_path, sheet_name=sheet_name)
 
-    print(df_pa)
     # Fetch the geojson
     with open("./county-data.json") as f:
         geojson = json.load(f)
 
-    # Extract FIPS codes and county names from the geojson
     county_data = [
         {
             "fips": feature["properties"]["STATE"] + feature["properties"]["COUNTY"],
-            "County": feature["properties"][
-                "NAME"
-            ].upper(),  # Convert to uppercase to match your dataframe
+            "County": feature["properties"]["NAME"].upper(),
         }
         for feature in geojson["features"]
         if feature["properties"]["STATE"] == "42"
@@ -88,30 +84,35 @@ def county_maps_page():
 
     import numpy as np
 
-    merged_df["log_pop"] = np.log(
-        merged_df["18 to 24"] + 1
-    )  # Adding 1 to handle counties with 0 population in the age group
+    merged_df["population"] = np.log(merged_df["18 to 24"] + 1)
 
     fig = px.choropleth_mapbox(
         merged_df,
         geojson=geojson,
         locations="fips",
-        color="log_pop",  # Use the logarithmic column for coloring
+        color="population",  # Use the logarithmic column for coloring
         hover_name="County",
-        hover_data={"18 to 24": True, "log_pop": False, "fips": False},
+        hover_data={"18 to 24": True, "population": False, "fips": False},
         mapbox_style="carto-positron",
         color_continuous_scale="Viridis",
         title="Population of Pennsylvania Counties (Age Group: 18 to 24) - Log Scale",
         center={"lat": 40.994593, "lon": -77.604698},  # Center of PA
-        zoom=6,
+        zoom=5,
     )
-    # Adjust the layout
-    fig.update_layout(height=600, autosize=True)  # You can modify the height value as needed
 
     # Display the map
-    print(fig._config)
 
-    plot_html = pio.to_html(fig, full_html=False)
+    fig.update_layout(
+        autosize=True,
+        height=600,
+        margin={"r": 0, "t": 40, "l": 0, "b": 0},
+        coloraxis_colorbar=dict(len=0.75, x=0.5, y=-0.1, orientation="h", thickness=15),
+    )
+
+    plot_html = pio.to_html(
+        fig,
+        full_html=False,
+    )
 
     return render_template("county_map.html", plot_html=plot_html)
 
