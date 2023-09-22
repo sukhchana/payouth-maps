@@ -123,13 +123,14 @@ def index():
     Returns:
     - Rendered HTML.
     """
+    voting_locations = get_polling_stations("pollinglocation")
     mymap = Map(
         identifier="view-side",
         lat=40.2732,  # Central latitude for Pennsylvania
         lng=-76.8867,  # Central longitude for Pennsylvania
         fit_markers_to_bounds=True,
         style="height:600px;width:100%;margin:0;",
-        markers=get_polling_stations("pollinglocation"),
+        markers=voting_locations,
     )
 
     return render_template(
@@ -147,6 +148,7 @@ def html_data():
     Returns:
     - Rendered HTML in json format
     """
+    voting_locations = get_polling_stations("pollinglocation")
     mymap = Map(
         identifier="view-side",
         lat=40.2732,  # Central latitude for Pennsylvania
