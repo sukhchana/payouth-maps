@@ -124,7 +124,7 @@ def index():
         lng=-76.8867,  # Central longitude for Pennsylvania
         fit_markers_to_bounds=True,
         style="height:600px;width:100%;margin:0;",
-        markers=get_polling_stations("pollingstation"),
+        markers=get_polling_stations("pollinglocation"),
     )
 
     return render_template(
