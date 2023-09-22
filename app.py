@@ -154,7 +154,7 @@ def index():
         "var prev_infowindow_map = null;\n" + location_script,
     )
     fixed_html = fixed_html.replace(
-        "center: new google.maps.LatLng(40.2732, -76.8867),", "center: user_loc().then(function(latLng) {console.log(latLng);}).catch(function(error) {alert(error.message);});,"
+        "center: new google.maps.LatLng(40.2732, -76.8867),", "center: user_loc(),"
     )
 
     return fixed_html
