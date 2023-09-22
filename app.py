@@ -118,57 +118,13 @@ def index():
         markers=voting_locations,
     )
 
-    geometry = f'<script src="https://maps.googleapis.com/maps/api/js?key={secret_value}&libraries=geometry"></script>'
-
-
-    location_script = """function user_loc() {
-    return new Promise(function(resolve, reject) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var lat = position.coords.latitude;
-                var lng = position.coords.longitude;
-                console.log(lat, lng);
-                resolve(new google.maps.LatLng(lat, lng));
-            }, function(error) {
-                reject(error);
-            });
-        } else {
-            reject(new Error("Geolocation is not supported by this browser."));
-        }
-    });
-}
-let userLocation;
-
-user_loc()
-    .then(location => {
-        userLocation = location; // This is now a google.maps.LatLng object
-        console.log(userLocation);
-    })
-    .catch(error => {
-        console.error(error.message);
-    });
-
-"""
-
-    tmp_html = render_template(
+    return render_template(
         "index.html",
         mymap=mymap,
         google_maps=google_maps,
         voting_locations=voting_locations,
     )
-    fixed_html = tmp_html.replace(
-        f'<script src="//maps.googleapis.com/maps/api/js?key={secret_value}&language=en&region=US" type="text/javascript"></script>',
-       geometry,
-    )
-    fixed_html = fixed_html.replace(
-        "var prev_infowindow_map = null;",
-        "var prev_infowindow_map = null;\n" + location_script,
-    )
-    fixed_html = fixed_html.replace(
-        "center: new google.maps.LatLng(40.2732, -76.8867),", "center: (userLatitude, userLongitude),"
-    )
-
-    return fixed_html
+    
 
 
 @app.route("/json")
