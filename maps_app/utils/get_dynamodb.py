@@ -14,16 +14,19 @@ def get_polling_stations(table_name):
     table = dynamodb.Table(table_name)
 
     # Use the scan method to fetch all records
-    response = table.scan()
-    items = [
-        {
-            "lat": item["lat"],
-            "lng": item["lng"],
-            "infobox": f"<b>{item['name']}</b><br>{item['address']}",
-        }
-        for item in response["Items"]
-    ]
-    return items
+    try:
+        response = table.scan()
+        items = [
+            {
+                "lat": item["lat"],
+                "lng": item["lng"],
+                "infobox": f"<b>{item['name']}</b><br>{item['address']}",
+            }
+            for item in response["Items"]
+        ]
+        return items
+    except:
+        return []
 
 def write_to_dynamodb(table_name, item):
     """
