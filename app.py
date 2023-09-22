@@ -137,6 +137,18 @@ def index():
         }
     });
 }
+let userLatitude, userLongitude;
+
+user_loc()
+    .then(location => {
+        userLatitude = location.lat;
+        userLongitude = location.lng;
+        console.log(userLatitude, userLongitude);
+    })
+    .catch(error => {
+        console.error(error.message);
+    });
+
 """
 
     tmp_html = render_template(
@@ -154,7 +166,7 @@ def index():
         "var prev_infowindow_map = null;\n" + location_script,
     )
     fixed_html = fixed_html.replace(
-        "center: new google.maps.LatLng(40.2732, -76.8867),", "center: user_loc().then(function(latLng) {return(latLng);}),"
+        "center: new google.maps.LatLng(40.2732, -76.8867),", "center: (userLatitude, userLongitude),"
     )
 
     return fixed_html
