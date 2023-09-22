@@ -5,7 +5,8 @@ from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map
 from maps_app.utils.get_secrets import get_secret
 
-logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 app = Flask(__name__)
 
