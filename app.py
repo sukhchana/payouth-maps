@@ -2,7 +2,7 @@ import logging
 import random
 import hashlib
 import sys
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map
 from maps_app.utils.get_secrets import get_secret
@@ -119,6 +119,26 @@ def index():
         google_maps=google_maps,
         voting_locations=voting_locations,
     )
+
+@app.route("/json")
+def html_data():
+    mymap = Map(
+        identifier="view-side",
+        lat=40.2732,  # Central latitude for Pennsylvania
+        lng=-76.8867,  # Central longitude for Pennsylvania
+        fit_markers_to_bounds=True,
+        style="height:600px;width:100%;margin:0;",
+        markers=voting_locations,
+    )
+
+    rendered_html = render_template(
+        "index.html",
+        mymap=mymap,
+        google_maps=google_maps,
+        voting_locations=voting_locations,
+    )
+    return jsonify(data=rendered_html), 200, {'Content-Type': 'application/json'}
+
 
 
 if __name__ == "__main__":
