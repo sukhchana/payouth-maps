@@ -26,6 +26,6 @@ def get_polling_stations(table_name):
 if __name__ == "__main__":
     # Example usage
     table_name = "pollinglocation"
-    items = fetch_all_items(table_name)
+    items = get_polling_stations(table_name)
     for item in items:
         print(item)

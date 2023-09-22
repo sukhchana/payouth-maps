@@ -97,6 +97,7 @@ def generate_locations(num, lat=40.4406, lng=-79.9959, current_count=0, location
     name = f"{city} Voting Center"
 
     location = {
+        "latlng": f"{new_lat},{new_lng,}",
         "lat": new_lat,
         "lng": new_lng,
         "name": name,
@@ -155,4 +156,5 @@ def html_data():
 
 
 if __name__ == "__main__":
+    print(generate_locations(15))
     app.run(debug=True, host="0.0.0.0", port=443)
