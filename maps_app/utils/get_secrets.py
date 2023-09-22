@@ -17,3 +17,6 @@ def get_secret(secret_name="GoogleMapsAPI", region_name="us-east-1"):
     secret = get_secret_value_response["SecretString"]
 
     return secret
+
+if __name__ == "__main__":
+    print(get_secret())
