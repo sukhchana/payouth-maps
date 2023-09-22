@@ -63,60 +63,62 @@ def index():
 @app.route("/county_map")
 @cross_origin(origins=["*"])
 def county_maps_page():
-    # Load the specific sheet from the Excel file
-    file_path = "./currentvotestats.xls"
-    sheet_name = "All by Age"
-    # df_pa = pd.read_excel(file_path, sheet_name=sheet_name)
-    with open("./mapS_app/county-data.json", "r") as f:
-        geojson = json.load(f)
-    with open("./mapS_app/df_pa.json", "r") as f:
-        df_pa = pd.DataFrame(json.load(f))
-    
-    county_data = [
-        {
-            "fips": feature["properties"]["STATE"] + feature["properties"]["COUNTY"],
-            "County": feature["properties"]["NAME"].upper(),
-        }
-        for feature in geojson["features"]
-        if feature["properties"]["STATE"] == "42"
-    ]
+    try:
+        # Load the specific sheet from the Excel file
+        file_path = "./currentvotestats.xls"
+        sheet_name = "All by Age"
+        # df_pa = pd.read_excel(file_path, sheet_name=sheet_name)
+        with open("./mapS_app/county-data.json", "r") as f:
+            geojson = json.load(f)
+        with open("./mapS_app/df_pa.json", "r") as f:
+            df_pa = pd.DataFrame(json.load(f))
+        
+        county_data = [
+            {
+                "fips": feature["properties"]["STATE"] + feature["properties"]["COUNTY"],
+                "County": feature["properties"]["NAME"].upper(),
+            }
+            for feature in geojson["features"]
+            if feature["properties"]["STATE"] == "42"
+        ]
 
-    df_fips = pd.DataFrame(county_data)
+        df_fips = pd.DataFrame(county_data)
 
-    merged_df = pd.merge(df_pa, df_fips, on="County", how="left")
+        merged_df = pd.merge(df_pa, df_fips, on="County", how="left")
 
-    merged_df["population"] = np.log(merged_df["18 to 24"] + 1)
+        merged_df["population"] = np.log(merged_df["18 to 24"] + 1)
 
-    fig = px.choropleth_mapbox(
-        merged_df,
-        geojson=geojson,
-        locations="fips",
-        color="population",  # Use the logarithmic column for coloring
-        hover_name="County",
-        hover_data={"18 to 24": True, "population": False, "fips": False},
-        mapbox_style="carto-positron",
-        color_continuous_scale="Viridis",
-        title="Population of Pennsylvania Counties (Age Group: 18 to 24) - Log Scale",
-        center={"lat": 40.994593, "lon": -77.604698},  # Center of PA
-        zoom=5,
-    )
+        fig = px.choropleth_mapbox(
+            merged_df,
+            geojson=geojson,
+            locations="fips",
+            color="population",  # Use the logarithmic column for coloring
+            hover_name="County",
+            hover_data={"18 to 24": True, "population": False, "fips": False},
+            mapbox_style="carto-positron",
+            color_continuous_scale="Viridis",
+            title="Population of Pennsylvania Counties (Age Group: 18 to 24) - Log Scale",
+            center={"lat": 40.994593, "lon": -77.604698},  # Center of PA
+            zoom=5,
+        )
 
-    # Display the map
+        # Display the map
 
-    fig.update_layout(
-        autosize=True,
-        height=600,
-        margin={"r": 0, "t": 40, "l": 0, "b": 0},
-        coloraxis_colorbar=dict(len=0.75, x=0.5, y=-0.1, orientation="h", thickness=15),
-    )
+        fig.update_layout(
+            autosize=True,
+            height=600,
+            margin={"r": 0, "t": 40, "l": 0, "b": 0},
+            coloraxis_colorbar=dict(len=0.75, x=0.5, y=-0.1, orientation="h", thickness=15),
+        )
 
-    plot_html = pio.to_html(
-        fig,
-        full_html=False,
-    )
+        plot_html = pio.to_html(
+            fig,
+            full_html=False,
+        )
 
-    return render_template("county_map.html", plot_html=plot_html)
-
+        return render_template("county_map.html", plot_html=plot_html)
+    except:
+        return render_template("county_map.html", plot_html="url_for('static', filename='./mapS_app/county-data.json') ")
 
 @app.route("/json")
 def html_data():
